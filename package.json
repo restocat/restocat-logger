@@ -1,0 +1,31 @@
+{
+  "name": "restocat-logger",
+  "version": "1.0.0-alpha.1",
+  "author": {
+    "name": "Chetverikov Maksim",
+    "email": "ma.chetverikov@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/restocat/restocat-logger"
+  },
+  "main": "RestocatLogger.js",
+  "description": "Restocat logger",
+  "license": "MIT",
+  "scripts": {
+    "test": "make"
+  },
+  "dependencies": {
+    "log4js": "^0.6.36"
+  },
+  "devDependencies": {
+    "should": "*",
+    "mocha": "*",
+    "supertest": "*",
+    "superagent": "*"
+  },
+  "engines": {
+    "node": ">=6"
+  },
+  "keywords": []
+}
