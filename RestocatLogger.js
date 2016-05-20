@@ -43,8 +43,17 @@ class RestocatLogger {
 
   }
 
-  get responseLogger() {
-    return log4js.connectLogger(this.loggerResponse, {level: 'auto', format: ':response-time (:remote-addr) :method :url :status'});
+  responseLogger(options) {
+    return (request, response) => {
+      const defaultOptions = {level: 'auto', format: ':response-time (:remote-addr) :method :url :status'};
+      const def = Promise.defer();
+
+      log4js
+        .connectLogger(this.loggerResponse, options || defaultOptions)
+        (request, response, (err) => err ? def.reject(err) : def.resolve());
+
+      return def.promise;
+    };
   }
 }
 
