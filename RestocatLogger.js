@@ -39,6 +39,7 @@ class RestocatLogger {
     this.events.on('collectionFound', descriptor => this.loggerSystem.info(`Collection ${descriptor.name} found`));
     this.events.on('collectionLoaded', descriptor => this.loggerSystem.info(`Collection ${descriptor.name} loaded`));
     this.events.on('collectionsLoaded', descriptor => this.loggerSystem.info('All collections loaded'));
+    this.events.on('forwarding', msg => this.loggerSystem.info(msg));
 
   }
 
