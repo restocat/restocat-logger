@@ -29,6 +29,14 @@ class RestocatLogger {
 
   listen() {
     this.events.on('incomingMessage', request => this.loggerRequest.info(`${request.method} ${request.url}`));
+    this.events.on('responseServer', (response, request) => {
+      const leftTime = Date.now() - request.getTime();
+      const method = request.method;
+      const url = request.getLocation();
+      const remoteAddr = request.getRemoteAddr();
+
+      this.loggerResponse.info(`${remoteAddr} - - (${leftTime}ms) ${method} ${url} ${response}`)
+    });
 
     this.events.on('warn', msg => this.loggerSystem.warn(msg));
     this.events.on('error', msg => this.loggerSystem.error(msg));
@@ -38,22 +46,9 @@ class RestocatLogger {
     this.events.on('debug', msg => this.loggerSystem.debug(msg));
     this.events.on('collectionFound', descriptor => this.loggerSystem.info(`Collection ${descriptor.name} found`));
     this.events.on('collectionLoaded', descriptor => this.loggerSystem.info(`Collection ${descriptor.name} loaded`));
-    this.events.on('collectionsLoaded', descriptor => this.loggerSystem.info('All collections loaded'));
+    this.events.on('allCollectionsLoaded', descriptor => this.loggerSystem.info('All collections loaded'));
     this.events.on('forwarding', msg => this.loggerSystem.info(msg));
 
-  }
-
-  responseLogger(options) {
-    return (request, response) => {
-      const defaultOptions = {level: 'auto', format: ':response-time (:remote-addr) :method :url :status'};
-      const def = Promise.defer();
-
-      log4js
-        .connectLogger(this.loggerResponse, options || defaultOptions)
-        (request, response, (err) => err ? def.reject(err) : def.resolve());
-
-      return def.promise;
-    };
   }
 }
 
