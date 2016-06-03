@@ -28,6 +28,8 @@ class RestocatLogger {
   }
 
   listen() {
+    process.on('uncaughtException', error => this.loggerSystem.fatal(error));
+
     this.events.on('incomingMessage', request => this.loggerRequest.info(`${request.method} ${request.url}`));
     this.events.on('responseServer', (response, request) => {
       const leftTime = Date.now() - request.getTime();
