@@ -1,6 +1,7 @@
 'use strict';
 
 const log4js = require('log4js');
+const DEFAULT_LEVEL = 'info';
 
 class RestocatLogger {
 
@@ -11,10 +12,22 @@ class RestocatLogger {
   }
 
   constructor(locator) {
+    const config = locator.resolve('config').logger || {};
+
+    this._level = typeof config.level === 'string' ? config.level : DEFAULT_LEVEL;
+
+    if (config.log4js) {
+      log4js.configure(config.log4js);
+    }
+
     this.events = locator.resolve('events');
     this.loggerRequest = log4js.getLogger('REQUEST ');
     this.loggerResponse = log4js.getLogger('RESPONSE');
     this.loggerSystem = log4js.getLogger('SYSTEM  ');
+
+    this.loggerRequest.setLevel(this._level);
+    this.loggerResponse.setLevel(this._level);
+    this.loggerSystem.setLevel(this._level);
 
     ['trace', 'debug', 'info', 'warn', 'error', 'fatal'].forEach(name => {
       this[name] = (...arg) => this.systemLogger(name, ...arg);
@@ -30,14 +43,14 @@ class RestocatLogger {
   listen() {
     process.on('uncaughtException', error => this.loggerSystem.fatal(error));
 
-    this.events.on('incomingMessage', request => this.loggerRequest.info(`${request.method} ${request.url}`));
+    this.events.on('incomingMessage', request => this.loggerRequest.info(`[${request.uuid}] ${request.method} ${request.url}`));
     this.events.on('responseServer', (response, request) => {
       const leftTime = Date.now() - request.getTime();
       const method = request.method;
       const url = request.getLocation();
       const remoteAddr = request.getRemoteAddr();
 
-      this.loggerResponse.info(`${remoteAddr} - - (${leftTime}ms) ${method} ${url} ${response}`)
+      this.loggerResponse.info(`[${request.uuid}] ${remoteAddr ? remoteAddr : ''} - - (${leftTime}ms) ${method} ${url} ${response}`)
     });
 
     this.events.on('warn', msg => this.loggerSystem.warn(msg));
